@@ -4,7 +4,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const BarearerStrategy = require("passport-http-bearer").Strategy;
 
-const blocklist = require("../../redis/manipulando-blocklist");
+const blocklist = require("../../redis/blocklist-access-token");
 
 const Usuario = require("./usuarios-modelo");
 const { InvalidArgumentError } = require("../erros");
