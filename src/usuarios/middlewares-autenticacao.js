@@ -1,26 +1,6 @@
 const passport = require("passport");
-const Usuatio = require("./usuarios-modelo");
-const { InvalidArgumentError } = require("../erros")
-const allowlistRefreshToken = require("../../redis/allowlist-refresh-token");
-
-async function verificaRefreshToken(refreshToken){
-    if(!refreshToken){
-        throw new InvalidArgumentError("Refresh token não enviado!");
-    }
-
-    const id = await allowlistRefreshToken.buscaValor(refreshToken);
-
-    if(!id){
-        throw new InvalidArgumentError("Refresh Token inválido")
-    }
-
-    return id;
-}
-
-async function invalidaRefreshToken(refreshToken){
-    await allowlistRefreshToken.deleta(refreshToken);
-}
-
+const Usuario = require("./usuarios-modelo");
+const tokens = require("./tokens");
 
 module.exports = {
     local: (req,res, next) => { 
@@ -62,7 +42,7 @@ module.exports = {
                 }
 
                 if(!user){
-                    return res.send(401).send();
+                    return res.status(401).send();
                 }
                 req.token = info.token
                 req.user = user;
@@ -74,9 +54,9 @@ module.exports = {
     async refresh(req,res,next){
         try{
             const { refreshToken } = req.body;
-            const id = await verificaRefreshToken(refreshToken);
-            await invalidaRefreshToken(refreshToken);
-            req.user = await Usuatio.buscaPorId(id);
+            const id = await tokens.refresh.verifica(refreshToken);
+            await tokens.refresh.invalida(refreshToken);
+            req.user = await Usuario.buscaPorId(id);
             return next();
         }catch(erro){
             if(erro.name === "InvalidArgumentError"){
