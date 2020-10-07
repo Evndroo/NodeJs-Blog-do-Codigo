@@ -19,6 +19,10 @@ module.exports = app => {
     .post(middlewares.local,usuariosControlador.login);
 
   app
+    .route("/usuario/verifica_email/:id")
+    .get(middlewares.verificacaoEmail, usuariosControlador.verificaEmail)
+
+  app
     .route("/usuario/logout")
     .post([ middlewares.refresh, middlewares.bearer ],usuariosControlador.logout);
 
